@@ -72,8 +72,13 @@ type TextureGroup struct {
 	textureFile string
 }
 
+const (
+	GRID_SIZE   = 50
+	GRID_RADIUS = 25
+)
+
 var (
-	grid [100][100][100]int
+	grid [GRID_SIZE][GRID_SIZE][GRID_SIZE]int
 
 	textureGroups = make([]TextureGroup, 0)
 
@@ -163,9 +168,6 @@ func main() {
 		panic(err)
 	}
 
-	version := gl.GoStr(gl.GetString(gl.VERSION))
-	fmt.Println("OpenGL version", version)
-
 	program, err := newProgram(vertexShader, fragmentShader)
 	if err != nil {
 		panic(err)
@@ -206,10 +208,10 @@ func main() {
 	}
 
 	rand.Seed(time.Now().UTC().UnixNano())
-	for x := -50; x < 50; x++ {
-		for z := -50; z < 50; z++ {
-			for y := -50; y < 50; y++ {
-				grid[x+50][y+50][z+50] = rand.Intn(len(textureGroups)) + 1
+	for x := -GRID_RADIUS; x < GRID_RADIUS; x++ {
+		for z := -GRID_RADIUS; z < GRID_RADIUS; z++ {
+			for y := -GRID_RADIUS; y < GRID_RADIUS; y++ {
+				grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS] = rand.Intn(len(textureGroups)) + 1
 				if rand.Intn(10) == 0 {
 					break
 				}
@@ -238,13 +240,13 @@ func main() {
 
 		textureGroups[t].startQuad = quadCount
 
-		for x := -50; x < 50; x++ {
-			for y := -50; y < 50; y++ {
-				for z := -50; z < 50; z++ {
+		for x := -GRID_RADIUS; x < GRID_RADIUS; x++ {
+			for y := -GRID_RADIUS; y < GRID_RADIUS; y++ {
+				for z := -GRID_RADIUS; z < GRID_RADIUS; z++ {
 
-					if grid[x+50][y+50][z+50] == t+1 {
+					if grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS] == t+1 {
 
-						if y == -50 || y > -50 && grid[x+50][y+50-1][z+50] == 0 {
+						if y == -GRID_RADIUS || y > -GRID_RADIUS && grid[x+GRID_RADIUS][y+GRID_RADIUS-1][z+GRID_RADIUS] == 0 {
 							for i, v := range cubeBottom {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -255,16 +257,15 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
+									rgb := []float32{0.2, 0.2, 0.2}
+									vertices = append(vertices, rgb...)
 								}
 							}
 
 							quadCount++
 						}
 
-						if y == 49 || y < 49 && grid[x+50][y+50+1][z+50] == 0 {
+						if y == GRID_RADIUS-1 || y < GRID_RADIUS-1 && grid[x+GRID_RADIUS][y+GRID_RADIUS+1][z+GRID_RADIUS] == 0 {
 							for i, v := range cubeTop {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -275,15 +276,14 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
+									rgb := []float32{1, 1, 1}
+									vertices = append(vertices, rgb...)
 								}
 							}
 							quadCount++
 						}
 
-						if x == -50 || x > -50 && grid[x+50-1][y+50][z+50] == 0 {
+						if x == -GRID_RADIUS || x > -GRID_RADIUS && grid[x+GRID_RADIUS-1][y+GRID_RADIUS][z+GRID_RADIUS] == 0 {
 							for i, v := range cubeLeft {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -294,15 +294,14 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
+									rgb := []float32{0.7, 0.7, 0.7}
+									vertices = append(vertices, rgb...)
 								}
 							}
 							quadCount++
 						}
 
-						if x == 49 || x < 49 && grid[x+50+1][y+50][z+50] == 0 {
+						if x == GRID_RADIUS-1 || x < GRID_RADIUS-1 && grid[x+GRID_RADIUS+1][y+GRID_RADIUS][z+GRID_RADIUS] == 0 {
 							for i, v := range cubeRight {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -313,15 +312,14 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
+									rgb := []float32{0.5, 0.5, 0.5}
+									vertices = append(vertices, rgb...)
 								}
 							}
 							quadCount++
 						}
 
-						if z == -50 || z > -50 && grid[x+50][y+50][z+50-1] == 0 {
+						if z == -GRID_RADIUS || z > -GRID_RADIUS && grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS-1] == 0 {
 							for i, v := range cubeBack {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -332,15 +330,14 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
+									rgb := []float32{0.3, 0.3, 0.3}
+									vertices = append(vertices, rgb...)
 								}
 							}
 							quadCount++
 						}
 
-						if z == 49 || z < 49 && grid[x+50][y+50][z+50+1] == 0 {
+						if z == GRID_RADIUS-1 || z < GRID_RADIUS-1 && grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS+1] == 0 {
 							for i, v := range cubeFront {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -351,9 +348,8 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
-									vertices = append(vertices, rand.Float32())
+									rgb := []float32{0.5, 0.5, 0.5}
+									vertices = append(vertices, rgb...)
 								}
 							}
 							quadCount++
@@ -366,8 +362,6 @@ func main() {
 		}
 
 		textureGroups[t].endQuad = quadCount
-
-		fmt.Println(t, quadCount, quadCount*8*6, len(vertices))
 
 	}
 

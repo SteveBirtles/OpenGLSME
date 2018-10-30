@@ -1,26 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="416dffd5-2334-4677-8e2c-73827b48b34e" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/textures/Carpet.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Cave - basic.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Cave - copper.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Cave - gems.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Gritty blue stone.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Ocean.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Pebbles.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Rainbow.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Snow.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Spooky triangle grid.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Stone.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/Water.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/What have I done.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/cave tile.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/grass.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/wall.png" afterDir="false" />
+    <list default="true" id="416dffd5-2334-4677-8e2c-73827b48b34e" name="Default" comment="Color madness">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cube.go" beforeDir="false" afterPath="$PROJECT_DIR$/cube.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/square.png" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,12 +22,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="go" value="2078" />
+          <entry key="go" value="2401" />
+          <entry key="txt" value="20" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Go" value="2078" />
+          <entry key="Go" value="2401" />
+          <entry key="PLAIN_TEXT" value="20" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -73,8 +58,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cube.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="587" column="34" lean-forward="true" selection-start-line="587" selection-start-column="34" selection-end-line="587" selection-end-column="34" />
+            <state relative-caret-position="490">
+              <caret line="351" column="63" selection-start-line="351" selection-start-column="63" selection-end-line="351" selection-end-column="63" />
+              <folding>
+                <element signature="e#14#250#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -142,10 +130,16 @@
       <find>%5</find>
       <find>%5 == 7</find>
       <find>*5</find>
+      <find>50</find>
+      <find>49</find>
+      <find>fmt</find>
+      <find>version</find>
     </findStrings>
     <replaceStrings>
       <replace>%5</replace>
       <replace>%5 == 4</replace>
+      <replace>vertices = append(vertices, rgb...)</replace>
+      <replace>+GRID_SIZE/2</replace>
     </replaceStrings>
   </component>
   <component name="GOROOT" path="/usr/lib/go-1.10" />
@@ -196,6 +190,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="GO_FMT" value="true" />
     <property name="full.screen.before.presentation.mode" value="false" />
     <property name="go.gopath.indexing.explicitly.defined" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
@@ -282,6 +277,10 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Color madness" />
+    <option name="LAST_COMMIT_MESSAGE" value="Color madness" />
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../github.com/go-gl/glfw/v3.2/glfw/window.go">
       <provider selected="true" editor-type-id="text-editor">
@@ -297,8 +296,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cube.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="587" column="34" lean-forward="true" selection-start-line="587" selection-start-column="34" selection-end-line="587" selection-end-column="34" />
+        <state relative-caret-position="490">
+          <caret line="351" column="63" selection-start-line="351" selection-start-column="63" selection-end-line="351" selection-end-column="63" />
+          <folding>
+            <element signature="e#14#250#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
