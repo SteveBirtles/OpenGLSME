@@ -73,13 +73,13 @@ type TextureGroup struct {
 }
 
 const (
-	GRID_SIZE   = 256
-	GRID_RADIUS = 128
-	GRID_HEIGHT = 16
+	gridSize   = 256
+	gridCentre = 128
+	gridHeight = 16
 )
 
 var (
-	grid [GRID_SIZE][GRID_SIZE][GRID_HEIGHT][2]uint16
+	grid [gridSize][gridSize][gridHeight][2]uint16
 
 	textureGroups = make([]TextureGroup, 0)
 
@@ -99,7 +99,7 @@ var (
 		-1.0, 1.0, 1.0, 0.0, 1.0,
 		1.0, 1.0, 1.0, 1.0, 1.0,
 	}
-	cubeFront = []float32{
+	cubeDarkSide = []float32{
 		-1.0, -1.0, 1.0, 1.0, 0.0,
 		1.0, -1.0, 1.0, 0.0, 0.0,
 		-1.0, 1.0, 1.0, 1.0, 1.0,
@@ -107,7 +107,7 @@ var (
 		1.0, 1.0, 1.0, 0.0, 1.0,
 		-1.0, 1.0, 1.0, 1.0, 1.0,
 	}
-	cubeBack = []float32{
+	cubeLightSide = []float32{
 		-1.0, -1.0, -1.0, 0.0, 0.0,
 		-1.0, 1.0, -1.0, 0.0, 1.0,
 		1.0, -1.0, -1.0, 1.0, 0.0,
@@ -145,6 +145,26 @@ var (
 
 func init() {
 	runtime.LockOSThread()
+}
+
+func calculateShadows(x float64, y float64, z float64, frontTile uint16) bool {
+
+	for s := 1.0; y+s < gridHeight; s++ {
+
+		if int(z-s) >= -gridCentre && int(z-s) < gridCentre {
+
+			if frontTile == 0 &&
+				(grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s-1)][1] > 0 || grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s)][0] > 0) ||
+				frontTile > 0 && s > 1 &&
+					(grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s)][0] > 0 || grid[int(x)+gridCentre][int(z-s+1)+gridCentre][int(y+s)][0] > 0) {
+				return true
+			}
+
+		}
+	}
+
+	return false
+
 }
 
 func main() {
@@ -200,15 +220,6 @@ func main() {
 
 	textureGroups = []TextureGroup{{textureFile: "textures/opengltextures.png"}}
 
-	/*rand.Seed(time.Now().UTC().UnixNano())
-	for x := -GRID_RADIUS; x < GRID_RADIUS; x++ {
-		for z := -GRID_RADIUS; z < GRID_RADIUS; z++ {
-			grid[x+GRID_RADIUS][z+GRID_RADIUS][0][0] = uint16(rand.Intn(160) + 1)
-			if rand.Intn(2) == 0 { continue }
-			grid[x+GRID_RADIUS][z+GRID_RADIUS][0][1] = uint16(rand.Intn(160) + 1)
-		}
-	}*/
-
 	for i := range textureGroups {
 		texture, err := newTexture(textureGroups[i].textureFile)
 		if err != nil {
@@ -229,20 +240,27 @@ func main() {
 
 		textureGroups[tg].startQuad = quadCount
 
-		for x := -GRID_RADIUS; x < GRID_RADIUS; x++ {
-			for y := 0; y < GRID_HEIGHT; y++ {
-				for z := -GRID_RADIUS; z < GRID_RADIUS; z++ {
+		for x := -gridCentre; x < gridCentre; x++ {
+			for z := -gridCentre; z < gridCentre; z++ {
+				for y := 0; y < gridHeight; y++ {
 
-					baseTexture := int(grid[x+GRID_RADIUS][z+GRID_RADIUS][y][0]) - 1
-					sideTexture := int(grid[x+GRID_RADIUS][z+GRID_RADIUS][y][1]) - 1
+					ambientR := float32(32 / math.Hypot(math.Hypot(float64(x), float64(z)), float64(32-y)))
+					ambientG := float32(24 / math.Hypot(math.Hypot(float64(x), float64(z)), float64(32-y)))
+					ambientB := float32(32 / math.Hypot(math.Hypot(float64(x), float64(z)), float64(32-y)))
+
+					baseTexture := int(grid[x+gridCentre][z+gridCentre][y][0]) - 1
+					sideTexture := int(grid[x+gridCentre][z+gridCentre][y][1]) - 1
+					shadow := []float32{0.5 * ambientR, 0.5 * ambientG, 0.5 * ambientB}
 
 					if baseTexture == -1 {
 						continue
 					}
 
+					inShadow := calculateShadows(float64(x), float64(y), float64(z), uint16(sideTexture+1))
+
 					if sideTexture == -1 {
 
-						if y == 0 || y > 0 && grid[x+GRID_RADIUS][z+GRID_RADIUS][y-1][0] == 0 {
+						if y == 0 || y > 0 && grid[x+gridCentre][z+gridCentre][y-1][0] == 0 {
 							for i, v := range cubeBottom {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -257,7 +275,10 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									rgb := []float32{1, 1, 1}
+									rgb := []float32{1 * ambientR, 1 * ambientG, 1 * ambientB}
+									if inShadow {
+										rgb = shadow
+									}
 									vertices = append(vertices, rgb...)
 								}
 							}
@@ -267,7 +288,7 @@ func main() {
 
 					} else {
 
-						if y == GRID_HEIGHT-1 || y < GRID_HEIGHT-1 && grid[x+GRID_RADIUS][z+GRID_RADIUS][y+1][0] == 0 {
+						if y == gridHeight-1 || y < gridHeight-1 && grid[x+gridCentre][z+gridCentre][y+1][0] == 0 {
 							for i, v := range cubeTop {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -282,7 +303,10 @@ func main() {
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									rgb := []float32{1, 1, 1}
+									rgb := []float32{1 * ambientR, 1 * ambientG, 1 * ambientB}
+									if inShadow {
+										rgb = shadow
+									}
 									vertices = append(vertices, rgb...)
 								}
 							}
@@ -295,7 +319,7 @@ func main() {
 						continue
 					}
 
-					if x == -GRID_RADIUS || x > -GRID_RADIUS && grid[x+GRID_RADIUS-1][z+GRID_RADIUS][y][1] == 0 {
+					if x == -gridCentre || x > -gridCentre && grid[x+gridCentre-1][z+gridCentre][y][1] == 0 {
 						for i, v := range cubeLeft {
 							if i%5 == 0 {
 								v += float32(2 * x)
@@ -310,14 +334,14 @@ func main() {
 							}
 							vertices = append(vertices, v)
 							if i%5 == 4 {
-								rgb := []float32{0.5, 0.5, 0.5}
+								rgb := []float32{0.5 * ambientR, 0.5 * ambientG, 0.5 * ambientB}
 								vertices = append(vertices, rgb...)
 							}
 						}
 						quadCount++
 					}
 
-					if x == GRID_RADIUS-1 || x < GRID_RADIUS-1 && grid[x+GRID_RADIUS+1][z+GRID_RADIUS][y][1] == 0 {
+					if x == gridCentre-1 || x < gridCentre-1 && grid[x+gridCentre+1][z+gridCentre][y][1] == 0 {
 						for i, v := range cubeRight {
 							if i%5 == 0 {
 								v += float32(2 * x)
@@ -332,15 +356,15 @@ func main() {
 							}
 							vertices = append(vertices, v)
 							if i%5 == 4 {
-								rgb := []float32{0.5, 0.5, 0.5}
+								rgb := []float32{0.5 * ambientR, 0.5 * ambientG, 0.5 * ambientB}
 								vertices = append(vertices, rgb...)
 							}
 						}
 						quadCount++
 					}
 
-					if z == -GRID_RADIUS || z > -GRID_RADIUS && grid[x+GRID_RADIUS][z+GRID_RADIUS-1][y][1] == 0 {
-						for i, v := range cubeBack {
+					if z == -gridCentre || z > -gridCentre && grid[x+gridCentre][z+gridCentre-1][y][1] == 0 {
+						for i, v := range cubeLightSide {
 							if i%5 == 0 {
 								v += float32(2 * x)
 							} else if i%5 == 1 {
@@ -354,15 +378,18 @@ func main() {
 							}
 							vertices = append(vertices, v)
 							if i%5 == 4 {
-								rgb := []float32{0.3, 0.3, 0.3}
+								rgb := []float32{0.75 * ambientR, 0.75 * ambientG, 0.75 * ambientB}
+								if inShadow {
+									rgb = shadow
+								}
 								vertices = append(vertices, rgb...)
 							}
 						}
 						quadCount++
 					}
 
-					if z == GRID_RADIUS-1 || z < GRID_RADIUS-1 && grid[x+GRID_RADIUS][z+GRID_RADIUS+1][y][1] == 0 {
-						for i, v := range cubeFront {
+					if z == gridCentre-1 || z < gridCentre-1 && grid[x+gridCentre][z+gridCentre+1][y][1] == 0 {
+						for i, v := range cubeDarkSide {
 							if i%5 == 0 {
 								v += float32(2 * x)
 							} else if i%5 == 1 {
@@ -376,7 +403,7 @@ func main() {
 							}
 							vertices = append(vertices, v)
 							if i%5 == 4 {
-								rgb := []float32{0.7, 0.7, 0.7}
+								rgb := []float32{0.333 * ambientR, 0.333 * ambientG, 0.333 * ambientB}
 								vertices = append(vertices, rgb...)
 							}
 						}
