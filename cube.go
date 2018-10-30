@@ -10,10 +10,12 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"math"
 )
 
 const windowWidth = 1024
@@ -103,6 +105,17 @@ var cubeVertices = []float32{
 	1.0, 1.0, 1.0, 0.0, 1.0,
 }
 
+var (
+	frames            = 0
+	second            = time.Tick(time.Second)
+	frameLength       float64
+	windowTitlePrefix = "Cube"
+	x float64 = -50
+	y float64 = 10
+	z float64 = 0
+	pitch float64 = 0
+	bearing float64 = 0
+)
 
 func init() {
 	runtime.LockOSThread()
@@ -120,7 +133,7 @@ func main() {
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	window, err := glfw.CreateWindow(windowWidth, windowHeight, "Cube", nil, nil)
+	window, err := glfw.CreateWindow(windowWidth, windowHeight, windowTitlePrefix, nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -144,10 +157,6 @@ func main() {
 	projectionUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
-	camera := mgl32.LookAtV(mgl32.Vec3{0, 40, 40}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
-	cameraUniform := gl.GetUniformLocation(program, gl.Str("camera\x00"))
-	gl.UniformMatrix4fv(cameraUniform, 1, false, &camera[0])
-
 	model := mgl32.Ident4()
 	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
@@ -170,8 +179,8 @@ func main() {
 
 	vertices := make([]float32, 0)
 
-	for x := -100; x < 100; x++ {
-		for z := -100; z < 100; z++ {
+	for x := -50; x < 50; x++ {
+		for z := -50; z < 50; z++ {
 			for i, v := range cubeVertices {
 				if i%5 == 0 {
 					v += float32(2 * x)
@@ -196,26 +205,89 @@ func main() {
 	gl.EnableVertexAttribArray(texCoordAttrib)
 	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
 
-	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-
-	angle := 0.0
-	previousTime := glfw.GetTime()
+	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
 	for !window.ShouldClose() {
-		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		frameStart := time.Now()
 
 		// Update
-		time := glfw.GetTime()
-		elapsed := time - previousTime
-		previousTime = time
 
-		angle += elapsed
-		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
+		if window.GetKey(glfw.KeyEscape) == glfw.Press {
+			window.SetShouldClose(true)
+		}
+
+		if window.GetKey(glfw.KeyRight) == glfw.Press {
+			bearing += 0.5*math.Pi*frameLength
+			if bearing > math.Pi { bearing -= 2*math.Pi }
+		}
+
+		if window.GetKey(glfw.KeyLeft) == glfw.Press {
+			bearing -= 0.5*math.Pi*frameLength
+			if bearing < -math.Pi { bearing += 2*math.Pi }
+		}
+
+		if window.GetKey(glfw.KeyDown) == glfw.Press {
+			pitch += 0.5*math.Pi*frameLength
+			if pitch > 0.5*math.Pi { pitch = 0.5*math.Pi }
+		}
+
+		if window.GetKey(glfw.KeyUp) == glfw.Press {
+			pitch -= 0.5*math.Pi*frameLength
+			if pitch < -0.5*math.Pi { pitch = -0.5*math.Pi }
+		}
+
+		if window.GetKey(glfw.KeyW) == glfw.Press {
+			x += 25*frameLength*math.Cos(bearing)*math.Cos(pitch)
+			y += 25*frameLength*math.Sin(pitch)
+			z += 25*frameLength*math.Sin(bearing)*math.Cos(pitch)
+
+		}
+
+		if window.GetKey(glfw.KeyS) == glfw.Press {
+			x -= 25*frameLength*math.Cos(bearing)*math.Cos(pitch)
+			y -= 25*frameLength*math.Sin(pitch)
+			z -= 25*frameLength*math.Sin(bearing)*math.Cos(pitch)
+		}
+
+		if window.GetKey(glfw.KeyF) == glfw.Press {
+			x += 25*frameLength*math.Cos(bearing)*math.Sin(pitch)
+			y -= 25*frameLength*math.Cos(pitch)
+			z += 25*frameLength*math.Sin(bearing)*math.Sin(pitch)
+
+		}
+
+		if window.GetKey(glfw.KeyR) == glfw.Press {
+			x -= 25*frameLength*math.Cos(bearing)*math.Sin(pitch)
+			y += 25*frameLength*math.Cos(pitch)
+			z -= 25*frameLength*math.Sin(bearing)*math.Sin(pitch)
+		}
+
+		if window.GetKey(glfw.KeyA) == glfw.Press {
+			x += 25*frameLength*math.Sin(bearing)
+			z -= 25*frameLength*math.Cos(bearing)
+		}
+
+		if window.GetKey(glfw.KeyD) == glfw.Press {
+			x -= 25*frameLength*math.Sin(bearing)
+			z += 25*frameLength*math.Cos(bearing)
+		}
 
 		// Render
+
+		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		position := mgl32.Vec3{float32(x), float32(y), float32(z)}
+		focus := mgl32.Vec3{float32(x + 100*math.Cos(bearing)*math.Cos(pitch)), float32(y + 100*math.Sin(pitch)), float32(z + 100*math.Sin(bearing)*math.Cos(pitch))}
+		up := mgl32.Vec3{0, 1, 0}
+
+		camera := mgl32.LookAtV(position, focus, up)
+
+		cameraUniform := gl.GetUniformLocation(program, gl.Str("camera\x00"))
+		gl.UniformMatrix4fv(cameraUniform, 1, false, &camera[0])
+
 		gl.UseProgram(program)
 		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
@@ -226,9 +298,19 @@ func main() {
 
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)/5))
 
-		// Maintenance
 		window.SwapBuffers()
 		glfw.PollEvents()
+
+		frames++
+		select {
+		case <-second:
+			window.SetTitle(fmt.Sprintf("%s | FPS: %d", windowTitlePrefix, frames))
+			frames = 0
+		default:
+		}
+
+		frameLength = time.Since(frameStart).Seconds()
+
 	}
 }
 
@@ -330,7 +412,7 @@ func newTexture(file string) (uint32, error) {
 
 // Set the working directory to the root of Go package, so that its assets can be accessed.
 func init() {
-	dir, err := importPathToDir("github.com/go-gl/example/gl41core-cube")
+	dir, err := importPathToDir("goglworld")
 	if err != nil {
 		log.Fatalln("Unable to find Go package in your GOPATH, it's needed to load assets:", err)
 	}
