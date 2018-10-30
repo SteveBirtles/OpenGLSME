@@ -7,12 +7,12 @@ import (
 	"image/draw"
 	_ "image/png"
 	"log"
-	"math/rand"
 	"os"
 	"runtime"
 	"strings"
 	"time"
 
+	"encoding/gob"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
@@ -73,21 +73,22 @@ type TextureGroup struct {
 }
 
 const (
-	GRID_SIZE   = 50
-	GRID_RADIUS = 25
+	GRID_SIZE   = 256
+	GRID_RADIUS = 128
+	GRID_HEIGHT = 16
 )
 
 var (
-	grid [GRID_SIZE][GRID_SIZE][GRID_SIZE]int
+	grid [GRID_SIZE][GRID_SIZE][GRID_HEIGHT][2]uint16
 
 	textureGroups = make([]TextureGroup, 0)
 
 	cubeBottom = []float32{
+		1.0, -1.0, -1.0, 1.0, 0.0,
 		-1.0, -1.0, -1.0, 0.0, 0.0,
-		1.0, -1.0, -1.0, 1.0, 0.0,
 		-1.0, -1.0, 1.0, 0.0, 1.0,
-		1.0, -1.0, -1.0, 1.0, 0.0,
 		1.0, -1.0, 1.0, 1.0, 1.0,
+		1.0, -1.0, -1.0, 1.0, 0.0,
 		-1.0, -1.0, 1.0, 0.0, 1.0,
 	}
 	cubeTop = []float32{
@@ -148,6 +149,15 @@ func init() {
 
 func main() {
 
+	f1, err1 := os.Open("../github.com/stevebirtles/supermoonengine/maps/default.map")
+	if err1 == nil {
+		decoder1 := gob.NewDecoder(f1)
+		err := decoder1.Decode(&grid)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("failed to initialize glfw:", err)
 	}
@@ -188,36 +198,16 @@ func main() {
 
 	gl.BindFragDataLocation(program, 0, gl.Str("outputColor\x00"))
 
-	textureGroups = []TextureGroup{
-		{textureFile: "textures/Carpet.png"},
-		{textureFile: "textures/Cave - basic.png"},
-		{textureFile: "textures/Cave - copper.png"},
-		{textureFile: "textures/Cave - gems.png"},
-		{textureFile: "textures/cave tile.png"},
-		{textureFile: "textures/grass.png"},
-		{textureFile: "textures/Gritty blue stone.png"},
-		{textureFile: "textures/Ocean.png"},
-		{textureFile: "textures/Pebbles.png"},
-		{textureFile: "textures/Rainbow.png"},
-		{textureFile: "textures/Snow.png"},
-		{textureFile: "textures/Spooky triangle grid.png"},
-		{textureFile: "textures/Stone.png"},
-		{textureFile: "textures/wall.png"},
-		{textureFile: "textures/Water.png"},
-		{textureFile: "textures/What have I done.png"},
-	}
+	textureGroups = []TextureGroup{{textureFile: "textures/opengltextures.png"}}
 
-	rand.Seed(time.Now().UTC().UnixNano())
+	/*rand.Seed(time.Now().UTC().UnixNano())
 	for x := -GRID_RADIUS; x < GRID_RADIUS; x++ {
 		for z := -GRID_RADIUS; z < GRID_RADIUS; z++ {
-			for y := -GRID_RADIUS; y < GRID_RADIUS; y++ {
-				grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS] = rand.Intn(len(textureGroups)) + 1
-				if rand.Intn(10) == 0 {
-					break
-				}
-			}
+			grid[x+GRID_RADIUS][z+GRID_RADIUS][0][0] = uint16(rand.Intn(160) + 1)
+			if rand.Intn(2) == 0 { continue }
+			grid[x+GRID_RADIUS][z+GRID_RADIUS][0][1] = uint16(rand.Intn(160) + 1)
 		}
-	}
+	}*/
 
 	for i := range textureGroups {
 		texture, err := newTexture(textureGroups[i].textureFile)
@@ -227,7 +217,6 @@ func main() {
 		textureGroups[i].texture = texture
 	}
 
-	// Configure the vertex data
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
@@ -236,17 +225,24 @@ func main() {
 
 	quadCount := int32(0)
 
-	for t := range textureGroups {
+	for tg := range textureGroups {
 
-		textureGroups[t].startQuad = quadCount
+		textureGroups[tg].startQuad = quadCount
 
 		for x := -GRID_RADIUS; x < GRID_RADIUS; x++ {
-			for y := -GRID_RADIUS; y < GRID_RADIUS; y++ {
+			for y := 0; y < GRID_HEIGHT; y++ {
 				for z := -GRID_RADIUS; z < GRID_RADIUS; z++ {
 
-					if grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS] == t+1 {
+					baseTexture := int(grid[x+GRID_RADIUS][z+GRID_RADIUS][y][0]) - 1
+					sideTexture := int(grid[x+GRID_RADIUS][z+GRID_RADIUS][y][1]) - 1
 
-						if y == -GRID_RADIUS || y > -GRID_RADIUS && grid[x+GRID_RADIUS][y+GRID_RADIUS-1][z+GRID_RADIUS] == 0 {
+					if baseTexture == -1 {
+						continue
+					}
+
+					if sideTexture == -1 {
+
+						if y == 0 || y > 0 && grid[x+GRID_RADIUS][z+GRID_RADIUS][y-1][0] == 0 {
 							for i, v := range cubeBottom {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -254,10 +250,14 @@ func main() {
 									v += float32(2 * y)
 								} else if i%5 == 2 {
 									v += float32(2 * z)
+								} else if i%5 == 3 {
+									v = (v + float32(baseTexture%16)) / 16
+								} else if i%5 == 4 {
+									v = float32(int(v+float32(baseTexture/16))) / 16
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
-									rgb := []float32{0.2, 0.2, 0.2}
+									rgb := []float32{1, 1, 1}
 									vertices = append(vertices, rgb...)
 								}
 							}
@@ -265,7 +265,9 @@ func main() {
 							quadCount++
 						}
 
-						if y == GRID_RADIUS-1 || y < GRID_RADIUS-1 && grid[x+GRID_RADIUS][y+GRID_RADIUS+1][z+GRID_RADIUS] == 0 {
+					} else {
+
+						if y == GRID_HEIGHT-1 || y < GRID_HEIGHT-1 && grid[x+GRID_RADIUS][z+GRID_RADIUS][y+1][0] == 0 {
 							for i, v := range cubeTop {
 								if i%5 == 0 {
 									v += float32(2 * x)
@@ -273,6 +275,10 @@ func main() {
 									v += float32(2 * y)
 								} else if i%5 == 2 {
 									v += float32(2 * z)
+								} else if i%5 == 3 {
+									v = (v + float32(baseTexture%16)) / 16
+								} else if i%5 == 4 {
+									v = float32(int(v+float32(baseTexture/16))) / 16
 								}
 								vertices = append(vertices, v)
 								if i%5 == 4 {
@@ -283,85 +289,106 @@ func main() {
 							quadCount++
 						}
 
-						if x == -GRID_RADIUS || x > -GRID_RADIUS && grid[x+GRID_RADIUS-1][y+GRID_RADIUS][z+GRID_RADIUS] == 0 {
-							for i, v := range cubeLeft {
-								if i%5 == 0 {
-									v += float32(2 * x)
-								} else if i%5 == 1 {
-									v += float32(2 * y)
-								} else if i%5 == 2 {
-									v += float32(2 * z)
-								}
-								vertices = append(vertices, v)
-								if i%5 == 4 {
-									rgb := []float32{0.7, 0.7, 0.7}
-									vertices = append(vertices, rgb...)
-								}
-							}
-							quadCount++
-						}
+					}
 
-						if x == GRID_RADIUS-1 || x < GRID_RADIUS-1 && grid[x+GRID_RADIUS+1][y+GRID_RADIUS][z+GRID_RADIUS] == 0 {
-							for i, v := range cubeRight {
-								if i%5 == 0 {
-									v += float32(2 * x)
-								} else if i%5 == 1 {
-									v += float32(2 * y)
-								} else if i%5 == 2 {
-									v += float32(2 * z)
-								}
-								vertices = append(vertices, v)
-								if i%5 == 4 {
-									rgb := []float32{0.5, 0.5, 0.5}
-									vertices = append(vertices, rgb...)
-								}
-							}
-							quadCount++
-						}
+					if sideTexture == -1 {
+						continue
+					}
 
-						if z == -GRID_RADIUS || z > -GRID_RADIUS && grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS-1] == 0 {
-							for i, v := range cubeBack {
-								if i%5 == 0 {
-									v += float32(2 * x)
-								} else if i%5 == 1 {
-									v += float32(2 * y)
-								} else if i%5 == 2 {
-									v += float32(2 * z)
-								}
-								vertices = append(vertices, v)
-								if i%5 == 4 {
-									rgb := []float32{0.3, 0.3, 0.3}
-									vertices = append(vertices, rgb...)
-								}
+					if x == -GRID_RADIUS || x > -GRID_RADIUS && grid[x+GRID_RADIUS-1][z+GRID_RADIUS][y][1] == 0 {
+						for i, v := range cubeLeft {
+							if i%5 == 0 {
+								v += float32(2 * x)
+							} else if i%5 == 1 {
+								v += float32(2 * y)
+							} else if i%5 == 2 {
+								v += float32(2 * z)
+							} else if i%5 == 3 {
+								v = (v + float32(sideTexture%16)) / 16
+							} else if i%5 == 4 {
+								v = float32(int(v+float32(sideTexture/16))) / 16
 							}
-							quadCount++
-						}
-
-						if z == GRID_RADIUS-1 || z < GRID_RADIUS-1 && grid[x+GRID_RADIUS][y+GRID_RADIUS][z+GRID_RADIUS+1] == 0 {
-							for i, v := range cubeFront {
-								if i%5 == 0 {
-									v += float32(2 * x)
-								} else if i%5 == 1 {
-									v += float32(2 * y)
-								} else if i%5 == 2 {
-									v += float32(2 * z)
-								}
-								vertices = append(vertices, v)
-								if i%5 == 4 {
-									rgb := []float32{0.5, 0.5, 0.5}
-									vertices = append(vertices, rgb...)
-								}
+							vertices = append(vertices, v)
+							if i%5 == 4 {
+								rgb := []float32{0.5, 0.5, 0.5}
+								vertices = append(vertices, rgb...)
 							}
-							quadCount++
 						}
+						quadCount++
+					}
 
+					if x == GRID_RADIUS-1 || x < GRID_RADIUS-1 && grid[x+GRID_RADIUS+1][z+GRID_RADIUS][y][1] == 0 {
+						for i, v := range cubeRight {
+							if i%5 == 0 {
+								v += float32(2 * x)
+							} else if i%5 == 1 {
+								v += float32(2 * y)
+							} else if i%5 == 2 {
+								v += float32(2 * z)
+							} else if i%5 == 3 {
+								v = (v + float32(sideTexture%16)) / 16
+							} else if i%5 == 4 {
+								v = float32(int(v+float32(sideTexture/16))) / 16
+							}
+							vertices = append(vertices, v)
+							if i%5 == 4 {
+								rgb := []float32{0.5, 0.5, 0.5}
+								vertices = append(vertices, rgb...)
+							}
+						}
+						quadCount++
+					}
+
+					if z == -GRID_RADIUS || z > -GRID_RADIUS && grid[x+GRID_RADIUS][z+GRID_RADIUS-1][y][1] == 0 {
+						for i, v := range cubeBack {
+							if i%5 == 0 {
+								v += float32(2 * x)
+							} else if i%5 == 1 {
+								v += float32(2 * y)
+							} else if i%5 == 2 {
+								v += float32(2 * z)
+							} else if i%5 == 3 {
+								v = (v + float32(sideTexture%16)) / 16
+							} else if i%5 == 4 {
+								v = float32(int(v+float32(sideTexture/16))) / 16
+							}
+							vertices = append(vertices, v)
+							if i%5 == 4 {
+								rgb := []float32{0.3, 0.3, 0.3}
+								vertices = append(vertices, rgb...)
+							}
+						}
+						quadCount++
+					}
+
+					if z == GRID_RADIUS-1 || z < GRID_RADIUS-1 && grid[x+GRID_RADIUS][z+GRID_RADIUS+1][y][1] == 0 {
+						for i, v := range cubeFront {
+							if i%5 == 0 {
+								v += float32(2 * x)
+							} else if i%5 == 1 {
+								v += float32(2 * y)
+							} else if i%5 == 2 {
+								v += float32(2 * z)
+							} else if i%5 == 3 {
+								v = (v + float32(sideTexture%16)) / 16
+							} else if i%5 == 4 {
+								v = float32(int(v+float32(sideTexture/16))) / 16
+							}
+							vertices = append(vertices, v)
+							if i%5 == 4 {
+								rgb := []float32{0.7, 0.7, 0.7}
+								vertices = append(vertices, rgb...)
+							}
+						}
+						quadCount++
 					}
 
 				}
+
 			}
 		}
 
-		textureGroups[t].endQuad = quadCount
+		textureGroups[tg].endQuad = quadCount
 
 	}
 
@@ -382,8 +409,13 @@ func main() {
 	gl.EnableVertexAttribArray(colorAttrib)
 	gl.VertexAttribPointer(colorAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
 
+	window.SetInputMode(glfw.CursorMode, glfw.CursorHidden)
+
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
+
+	gl.Enable(gl.CULL_FACE)
+
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
 	for !window.ShouldClose() {
@@ -398,30 +430,18 @@ func main() {
 
 		if window.GetKey(glfw.KeyRight) == glfw.Press {
 			bearing += 0.5 * math.Pi * frameLength
-			if bearing > math.Pi {
-				bearing -= 2 * math.Pi
-			}
 		}
 
 		if window.GetKey(glfw.KeyLeft) == glfw.Press {
 			bearing -= 0.5 * math.Pi * frameLength
-			if bearing < -math.Pi {
-				bearing += 2 * math.Pi
-			}
 		}
 
 		if window.GetKey(glfw.KeyDown) == glfw.Press {
 			pitch += 0.5 * math.Pi * frameLength
-			if pitch > 0.5*math.Pi {
-				pitch = 0.5 * math.Pi
-			}
 		}
 
 		if window.GetKey(glfw.KeyUp) == glfw.Press {
 			pitch -= 0.5 * math.Pi * frameLength
-			if pitch < -0.5*math.Pi {
-				pitch = -0.5 * math.Pi
-			}
 		}
 
 		if window.GetKey(glfw.KeyW) == glfw.Press {
@@ -458,6 +478,26 @@ func main() {
 		if window.GetKey(glfw.KeyD) == glfw.Press {
 			myX -= 25 * frameLength * math.Sin(bearing)
 			myZ += 25 * frameLength * math.Cos(bearing)
+		}
+
+		mouseX, mouseY := window.GetCursorPos()
+
+		bearing += (mouseX - windowWidth/2) * 0.0025
+		pitch += (windowHeight/2 - mouseY) * 0.0025
+
+		window.SetCursorPos(windowWidth/2, windowHeight/2)
+
+		if bearing > math.Pi {
+			bearing -= 2 * math.Pi
+		}
+		if bearing < -math.Pi {
+			bearing += 2 * math.Pi
+		}
+		if pitch > 0.5*math.Pi-0.001 {
+			pitch = 0.5*math.Pi - 0.001
+		}
+		if pitch < -0.5*math.Pi+0.001 {
+			pitch = -0.5*math.Pi + 0.001
 		}
 
 		// Render
@@ -580,8 +620,8 @@ func newTexture(file string) (uint32, error) {
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 	gl.TexImage2D(
 		gl.TEXTURE_2D,
 		0,
@@ -596,7 +636,6 @@ func newTexture(file string) (uint32, error) {
 	return texture, nil
 }
 
-// Set the working directory to the root of Go package, so that its assets can be accessed.
 func init() {
 	dir, err := importPathToDir("goglworld")
 	if err != nil {
@@ -608,9 +647,6 @@ func init() {
 	}
 }
 
-// importPathToDir resolves the absolute path from importPath.
-// There doesn't need to be a valid Go package inside that import path,
-// but the directory must exist.
 func importPathToDir(importPath string) (string, error) {
 	p, err := build.Import(importPath, "", build.FindOnly)
 	if err != nil {
