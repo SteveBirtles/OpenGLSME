@@ -9,7 +9,7 @@ import (
 )
 
 const windowWidth = 1280
-const windowHeight = 1024
+const windowHeight = 720
 
 var (
 	frames            = 0
@@ -21,12 +21,14 @@ var (
 
 func main() {
 
-	initiateOpenGL()
-	prepareShaders()
-	prepareTextures()
 	loadMap()
+
+	initiateOpenGL()
+	initiateShaders()
+	prepareTextures()
 	prepareVerticies()
 	prepareOpenGLBuffers()
+	finaliseShaders()
 
 	for !window.ShouldClose() {
 

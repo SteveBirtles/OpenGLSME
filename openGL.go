@@ -32,6 +32,7 @@ func initiateOpenGL() {
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+
 	window, err = glfw.CreateWindow(windowWidth, windowHeight, windowTitlePrefix, nil, nil)
 	if err != nil {
 		panic(err)
@@ -39,11 +40,6 @@ func initiateOpenGL() {
 	window.MakeContextCurrent()
 
 	if err = gl.Init(); err != nil {
-		panic(err)
-	}
-
-	program, err = newProgram(vertexShader, fragmentShader)
-	if err != nil {
 		panic(err)
 	}
 
@@ -65,18 +61,6 @@ func prepareOpenGLBuffers() {
 
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
-
-	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
-	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
-
-	texCoordAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
-	gl.EnableVertexAttribArray(texCoordAttrib)
-	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
-
-	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("inputColor\x00")))
-	gl.EnableVertexAttribArray(colorAttrib)
-	gl.VertexAttribPointer(colorAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
 
 }
 

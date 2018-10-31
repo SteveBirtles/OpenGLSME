@@ -55,8 +55,14 @@ void main() {
 }
 ` + "\x00"
 
-func prepareShaders() {
+func initiateShaders() {
 
+	var err error
+
+	program, err = newProgram(vertexShader, fragmentShader)
+	if err != nil {
+		panic(err)
+	}
 	gl.UseProgram(program)
 
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 5000.0)
@@ -71,6 +77,22 @@ func prepareShaders() {
 	gl.Uniform1i(textureUniform, 0)
 
 	gl.BindFragDataLocation(program, 0, gl.Str("outputColor\x00"))
+
+}
+
+func finaliseShaders() {
+
+	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
+	gl.EnableVertexAttribArray(vertAttrib)
+	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
+
+	texCoordAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
+	gl.EnableVertexAttribArray(texCoordAttrib)
+	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
+
+	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("inputColor\x00")))
+	gl.EnableVertexAttribArray(colorAttrib)
+	gl.VertexAttribPointer(colorAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
 
 }
 
