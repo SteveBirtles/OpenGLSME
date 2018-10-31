@@ -16,8 +16,6 @@ var (
 	frameLength       float64
 	windowTitlePrefix = "Supermoon Engine OpenGL Map Preview"
 	window            *glfw.Window
-	trippy            bool
-	startTime         time.Time
 )
 
 func main() {
@@ -25,20 +23,19 @@ func main() {
 	loadMap()
 
 	initiateOpenGL()
-	initiateShaders()
+	initiateShaders() // <--- to be completed
 	prepareTextures()
 	prepareVerticies()
 	finaliseShaders()
-
-	startTime = time.Now()
 
 	for !window.ShouldClose() {
 
 		frameStart := time.Now()
 
-		processInputs()
-		render()
+		processInputs() // <--- to be completed
+		render()        // <--- to be completed
 
+		glfw.PollEvents()
 		frames++
 		select {
 		case <-second:

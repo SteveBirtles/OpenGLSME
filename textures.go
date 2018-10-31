@@ -9,25 +9,14 @@ import (
 	"os"
 )
 
-type TextureGroup struct {
-	startQuad   int32
-	endQuad     int32
-	texture     uint32
-	textureFile string
-}
-
-var textureGroups = make([]TextureGroup, 0)
+var texture uint32
 
 func prepareTextures() {
 
-	textureGroups = []TextureGroup{{textureFile: "../supermoonengine/textures/tiles.png"}}
-
-	for i := range textureGroups {
-		texture, err := newTexture(textureGroups[i].textureFile)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		textureGroups[i].texture = texture
+	var err error
+	texture, err = newTexture("../supermoonengine/textures/tiles.png")
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 }

@@ -14,7 +14,7 @@ var (
 	modelUniform int32
 )
 
-const vertexShader = `
+const vertexShader = "" /*`
 #version 330
 
 uniform mat4 projection;
@@ -32,10 +32,9 @@ void main() {
     fragTexCoord = vertTexCoord;
 	fragColor = inputColor;
     gl_Position = projection * camera * model * vec4(vert, 1);
-}
-` + "\x00"
+}`*/
 
-const fragmentShader = `
+const fragmentShader = "" /*`
 #version 330
 
 uniform sampler2D tex;
@@ -52,8 +51,7 @@ void main() {
 	outputColor.y *= fragColor.y;
 	outputColor.z *= fragColor.z;
 
-}
-` + "\x00"
+}`*/
 
 func initiateShaders() {
 
@@ -98,12 +96,12 @@ func finaliseShaders() {
 
 func newProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
 
-	vertexShader, err := compileShader(vertexShaderSource, gl.VERTEX_SHADER)
+	vertexShader, err := compileShader(vertexShaderSource+"\x00", gl.VERTEX_SHADER)
 	if err != nil {
 		return 0, err
 	}
 
-	fragmentShader, err := compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
+	fragmentShader, err := compileShader(fragmentShaderSource+"\x00", gl.FRAGMENT_SHADER)
 	if err != nil {
 		return 0, err
 	}
