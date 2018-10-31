@@ -25,3 +25,23 @@ func loadMap() {
 	}
 
 }
+
+func calculateShadows(x float64, y float64, z float64, frontTile uint16) bool {
+
+	for s := 1.0; y+s < gridHeight; s++ {
+
+		if int(z-s) >= -gridCentre && int(z-s) < gridCentre {
+
+			if frontTile == 0 &&
+				(grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s-1)][1] > 0 || grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s)][0] > 0) ||
+				frontTile > 0 && s > 1 &&
+					(grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s)][0] > 0 || grid[int(x)+gridCentre][int(z-s+1)+gridCentre][int(y+s)][0] > 0) {
+				return true
+			}
+
+		}
+	}
+
+	return false
+
+}

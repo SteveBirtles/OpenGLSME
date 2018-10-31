@@ -33,6 +33,7 @@ func prepareTextures() {
 }
 
 func newTexture(file string) (uint32, error) {
+
 	imgFile, err := os.Open(file)
 	if err != nil {
 		return 0, fmt.Errorf("texture %q not found on disk: %v", file, err)
@@ -68,4 +69,5 @@ func newTexture(file string) (uint32, error) {
 		gl.Ptr(rgba.Pix))
 
 	return texture, nil
+
 }

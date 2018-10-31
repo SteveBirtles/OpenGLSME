@@ -31,19 +31,6 @@ func processInputs() {
 		myZ -= 25 * frameLength * math.Sin(bearing) * math.Cos(pitch)
 	}
 
-	if window.GetKey(glfw.KeyF) == glfw.Press {
-		myX += 25 * frameLength * math.Cos(bearing) * math.Sin(pitch)
-		myY -= 25 * frameLength * math.Cos(pitch)
-		myZ += 25 * frameLength * math.Sin(bearing) * math.Sin(pitch)
-
-	}
-
-	if window.GetKey(glfw.KeyR) == glfw.Press {
-		myX -= 25 * frameLength * math.Cos(bearing) * math.Sin(pitch)
-		myY += 25 * frameLength * math.Cos(pitch)
-		myZ -= 25 * frameLength * math.Sin(bearing) * math.Sin(pitch)
-	}
-
 	if window.GetKey(glfw.KeyA) == glfw.Press {
 		myX += 25 * frameLength * math.Sin(bearing)
 		myZ -= 25 * frameLength * math.Cos(bearing)
@@ -52,6 +39,19 @@ func processInputs() {
 	if window.GetKey(glfw.KeyD) == glfw.Press {
 		myX -= 25 * frameLength * math.Sin(bearing)
 		myZ += 25 * frameLength * math.Cos(bearing)
+	}
+
+	if window.GetKey(glfw.KeyLeftControl) == glfw.Press {
+		myX += 25 * frameLength * math.Cos(bearing) * math.Sin(pitch)
+		myY -= 25 * frameLength * math.Cos(pitch)
+		myZ += 25 * frameLength * math.Sin(bearing) * math.Sin(pitch)
+
+	}
+
+	if window.GetKey(glfw.KeySpace) == glfw.Press {
+		myX -= 25 * frameLength * math.Cos(bearing) * math.Sin(pitch)
+		myY += 25 * frameLength * math.Cos(pitch)
+		myZ -= 25 * frameLength * math.Sin(bearing) * math.Sin(pitch)
 	}
 
 	mouseX, mouseY := window.GetCursorPos()

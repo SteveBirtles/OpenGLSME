@@ -75,6 +75,7 @@ func prepareShaders() {
 }
 
 func newProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
+
 	vertexShader, err := compileShader(vertexShaderSource, gl.VERTEX_SHADER)
 	if err != nil {
 		return 0, err
@@ -107,9 +108,11 @@ func newProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error)
 	gl.DeleteShader(fragmentShader)
 
 	return program, nil
+
 }
 
 func compileShader(source string, shaderType uint32) (uint32, error) {
+
 	shader := gl.CreateShader(shaderType)
 
 	csources, free := gl.Strs(source)
@@ -130,4 +133,5 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 	}
 
 	return shader, nil
+
 }
