@@ -1,10 +1,14 @@
 package main
 
 import (
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"math"
 )
 
 var ( //  X, Y, Z, U, V
+
+	vertices  []float32
+	vertices2 []float32
 
 	cubeBottom = []float32{
 		1.0, -1.0, -1.0, 1.0, 0.0,
@@ -55,8 +59,6 @@ var ( //  X, Y, Z, U, V
 		1.0, 1.0, 1.0, 0.0, 1.0,
 	}
 
-	vertices = make([]float32, 0)
-
 	shadow []float32
 )
 
@@ -84,6 +86,8 @@ func processVertex(v float32, i, x, y, z int, s bool, b int, rgb []float32) {
 }
 
 func prepareVerticies() {
+
+	vertices = make([]float32, 0)
 
 	quadCount := int32(0)
 
@@ -162,5 +166,13 @@ func prepareVerticies() {
 		textureGroups[tg].endQuad = quadCount
 
 	}
+
+	vertices2 = make([]float32, len(vertices))
+
+	copy(vertices2, vertices)
+
+	gl.GenBuffers(1, &vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 
 }

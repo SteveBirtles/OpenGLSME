@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-gl/glfw/v3.2/glfw"
 	_ "image/png"
 	"time"
-
-	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
 const windowWidth = 1280
@@ -17,6 +16,8 @@ var (
 	frameLength       float64
 	windowTitlePrefix = "Supermoon Engine OpenGL Map Preview"
 	window            *glfw.Window
+	trippy            bool
+	startTime         time.Time
 )
 
 func main() {
@@ -27,8 +28,9 @@ func main() {
 	initiateShaders()
 	prepareTextures()
 	prepareVerticies()
-	prepareOpenGLBuffers()
 	finaliseShaders()
+
+	startTime = time.Now()
 
 	for !window.ShouldClose() {
 

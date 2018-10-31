@@ -51,14 +51,6 @@ func initiateOpenGL() {
 	gl.Enable(gl.CULL_FACE)
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
-}
-
-func prepareOpenGLBuffers() {
-
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
-
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
 
@@ -71,13 +63,10 @@ func render() {
 	position := mgl32.Vec3{float32(myX), float32(myY), float32(myZ)}
 	focus := mgl32.Vec3{float32(myX + 100*math.Cos(bearing)*math.Cos(pitch)), float32(myY + 100*math.Sin(pitch)), float32(myZ + 100*math.Sin(bearing)*math.Cos(pitch))}
 	up := mgl32.Vec3{0, 1, 0}
-
 	camera := mgl32.LookAtV(position, focus, up)
 
 	cameraUniform := gl.GetUniformLocation(program, gl.Str("camera\x00"))
 	gl.UniformMatrix4fv(cameraUniform, 1, false, &camera[0])
-
-	gl.UseProgram(program)
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
 	gl.BindVertexArray(vao)
