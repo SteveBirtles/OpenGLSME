@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"log"
+	"math"
 	"runtime"
 )
 
@@ -52,7 +54,7 @@ func initiateOpenGL() {
 
 func render() {
 
-	/* gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	position := mgl32.Vec3{float32(myX), float32(myY), float32(myZ)}
 	focus := mgl32.Vec3{float32(myX + 100*math.Cos(bearing)*math.Cos(pitch)), float32(myY + 100*math.Sin(pitch)), float32(myZ + 100*math.Sin(bearing)*math.Cos(pitch))}
@@ -66,6 +68,6 @@ func render() {
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 
-	window.SwapBuffers() */
+	window.SwapBuffers()
 
 }

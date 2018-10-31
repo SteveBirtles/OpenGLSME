@@ -14,8 +14,7 @@ var (
 	modelUniform int32
 )
 
-const vertexShader = "" /*`
-#version 330
+const vertexShader = `#version 330
 
 uniform mat4 projection;
 uniform mat4 camera;
@@ -32,10 +31,9 @@ void main() {
     fragTexCoord = vertTexCoord;
 	fragColor = inputColor;
     gl_Position = projection * camera * model * vec4(vert, 1);
-}`*/
+}`
 
-const fragmentShader = "" /*`
-#version 330
+const fragmentShader = `#version 330
 
 uniform sampler2D tex;
 
@@ -51,7 +49,7 @@ void main() {
 	outputColor.y *= fragColor.y;
 	outputColor.z *= fragColor.z;
 
-}`*/
+}`
 
 func initiateShaders() {
 
@@ -62,6 +60,10 @@ func initiateShaders() {
 		panic(err)
 	}
 	gl.UseProgram(program)
+
+}
+
+func finaliseShaders() {
 
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 5000.0)
 	projectionUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
@@ -75,10 +77,6 @@ func initiateShaders() {
 	gl.Uniform1i(textureUniform, 0)
 
 	gl.BindFragDataLocation(program, 0, gl.Str("outputColor\x00"))
-
-}
-
-func finaliseShaders() {
 
 	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
 	gl.EnableVertexAttribArray(vertAttrib)

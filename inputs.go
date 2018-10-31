@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"math"
 )
 
 var (
@@ -18,7 +19,7 @@ func processInputs() {
 		window.SetShouldClose(true)
 	}
 
-	/*if window.GetKey(glfw.KeyW) == glfw.Press {
+	if window.GetKey(glfw.KeyW) == glfw.Press {
 		myX += 25 * frameLength * math.Cos(bearing) * math.Cos(pitch)
 		myY += 25 * frameLength * math.Sin(pitch)
 		myZ += 25 * frameLength * math.Sin(bearing) * math.Cos(pitch)
@@ -71,6 +72,6 @@ func processInputs() {
 	}
 	if pitch < -0.5*math.Pi+0.001 {
 		pitch = -0.5*math.Pi + 0.001
-	}*/
+	}
 
 }
