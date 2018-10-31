@@ -1,0 +1,186 @@
+package main
+
+import "math"
+
+var (
+
+	//  X, Y, Z, U, V
+
+	cubeBottom = []float32{
+		1.0, -1.0, -1.0, 1.0, 0.0,
+		-1.0, -1.0, -1.0, 0.0, 0.0,
+		-1.0, -1.0, 1.0, 0.0, 1.0,
+		1.0, -1.0, 1.0, 1.0, 1.0,
+		1.0, -1.0, -1.0, 1.0, 0.0,
+		-1.0, -1.0, 1.0, 0.0, 1.0,
+	}
+	cubeTop = []float32{
+		-1.0, 1.0, -1.0, 0.0, 0.0,
+		-1.0, 1.0, 1.0, 0.0, 1.0,
+		1.0, 1.0, -1.0, 1.0, 0.0,
+		1.0, 1.0, -1.0, 1.0, 0.0,
+		-1.0, 1.0, 1.0, 0.0, 1.0,
+		1.0, 1.0, 1.0, 1.0, 1.0,
+	}
+	cubeDarkSide = []float32{
+		-1.0, -1.0, 1.0, 1.0, 0.0,
+		1.0, -1.0, 1.0, 0.0, 0.0,
+		-1.0, 1.0, 1.0, 1.0, 1.0,
+		1.0, -1.0, 1.0, 0.0, 0.0,
+		1.0, 1.0, 1.0, 0.0, 1.0,
+		-1.0, 1.0, 1.0, 1.0, 1.0,
+	}
+	cubeLightSide = []float32{
+		-1.0, -1.0, -1.0, 0.0, 0.0,
+		-1.0, 1.0, -1.0, 0.0, 1.0,
+		1.0, -1.0, -1.0, 1.0, 0.0,
+		1.0, -1.0, -1.0, 1.0, 0.0,
+		-1.0, 1.0, -1.0, 0.0, 1.0,
+		1.0, 1.0, -1.0, 1.0, 1.0,
+	}
+	cubeLeft = []float32{
+		-1.0, -1.0, 1.0, 0.0, 1.0,
+		-1.0, 1.0, -1.0, 1.0, 0.0,
+		-1.0, -1.0, -1.0, 0.0, 0.0,
+		-1.0, -1.0, 1.0, 0.0, 1.0,
+		-1.0, 1.0, 1.0, 1.0, 1.0,
+		-1.0, 1.0, -1.0, 1.0, 0.0,
+	}
+	cubeRight = []float32{
+		1.0, -1.0, 1.0, 1.0, 1.0,
+		1.0, -1.0, -1.0, 1.0, 0.0,
+		1.0, 1.0, -1.0, 0.0, 0.0,
+		1.0, -1.0, 1.0, 1.0, 1.0,
+		1.0, 1.0, -1.0, 0.0, 0.0,
+		1.0, 1.0, 1.0, 0.0, 1.0,
+	}
+
+	vertices = make([]float32, 0)
+
+	shadow []float32
+)
+
+func processVertex(v float32, i, x, y, z int, s bool, b int, rgb []float32) {
+
+	if i%5 == 0 {
+		v += float32(2 * x)
+	} else if i%5 == 1 {
+		v += float32(2 * y)
+	} else if i%5 == 2 {
+		v += float32(2 * z)
+	} else if i%5 == 3 {
+		v = (v + float32(b%16)) / 16
+	} else if i%5 == 4 {
+		v = float32(int(v+float32(b/16))) / 10
+	}
+	vertices = append(vertices, v)
+	if i%5 == 4 {
+		if s {
+			rgb = shadow
+		}
+		vertices = append(vertices, rgb...)
+	}
+
+}
+
+func prepareVerticies() {
+
+	quadCount := int32(0)
+
+	for tg := range textureGroups {
+
+		textureGroups[tg].startQuad = quadCount
+
+		for x := -gridCentre; x < gridCentre; x++ {
+			for z := -gridCentre; z < gridCentre; z++ {
+				for y := 0; y < gridHeight; y++ {
+
+					ambient := []float32{float32(32 / math.Hypot(math.Hypot(float64(x), float64(z)), float64(32-y))),
+						float32(32 / math.Hypot(math.Hypot(float64(x), float64(z)), float64(32-y))),
+						float32(32 / math.Hypot(math.Hypot(float64(x), float64(z)), float64(32-y)))}
+
+					baseTexture := int(grid[x+gridCentre][z+gridCentre][y][0]) - 1
+					sideTexture := int(grid[x+gridCentre][z+gridCentre][y][1]) - 1
+					shadow = []float32{0.5 * ambient[0], 0.5 * ambient[1], 0.5 * ambient[2]}
+
+					if baseTexture == -1 {
+						continue
+					}
+
+					inShadow := calculateShadows(float64(x), float64(y), float64(z), uint16(sideTexture+1))
+
+					if sideTexture == -1 {
+						if y == 0 || y > 0 && grid[x+gridCentre][z+gridCentre][y-1][0] == 0 {
+							for i, v := range cubeBottom {
+								processVertex(v, i, x, y, z, inShadow, baseTexture, []float32{1 * ambient[0], 1 * ambient[1], 1 * ambient[2]})
+							}
+							quadCount++
+						}
+					} else {
+						if y == gridHeight-1 || y < gridHeight-1 && grid[x+gridCentre][z+gridCentre][y+1][0] == 0 {
+							for i, v := range cubeTop {
+								processVertex(v, i, x, y, z, inShadow, baseTexture, []float32{1 * ambient[0], 1 * ambient[1], 1 * ambient[2]})
+							}
+							quadCount++
+						}
+					}
+
+					if sideTexture == -1 {
+						continue
+					}
+
+					if x == -gridCentre || x > -gridCentre && grid[x+gridCentre-1][z+gridCentre][y][1] == 0 {
+						for i, v := range cubeLeft {
+							processVertex(v, i, x, y, z, false, baseTexture, []float32{0.5 * ambient[0], 0.5 * ambient[1], 0.5 * ambient[2]})
+						}
+						quadCount++
+					}
+					if x == gridCentre-1 || x < gridCentre-1 && grid[x+gridCentre+1][z+gridCentre][y][1] == 0 {
+						for i, v := range cubeRight {
+							processVertex(v, i, x, y, z, false, baseTexture, []float32{0.5 * ambient[0], 0.5 * ambient[1], 0.5 * ambient[2]})
+						}
+						quadCount++
+					}
+					if z == -gridCentre || z > -gridCentre && grid[x+gridCentre][z+gridCentre-1][y][1] == 0 {
+						for i, v := range cubeLightSide {
+							processVertex(v, i, x, y, z, inShadow, baseTexture, []float32{0.75 * ambient[0], 0.75 * ambient[1], 0.75 * ambient[2]})
+						}
+						quadCount++
+					}
+					if z == gridCentre-1 || z < gridCentre-1 && grid[x+gridCentre][z+gridCentre+1][y][1] == 0 {
+						for i, v := range cubeDarkSide {
+							processVertex(v, i, x, y, z, false, baseTexture, []float32{0.333 * ambient[0], 0.333 * ambient[1], 0.333 * ambient[2]})
+						}
+						quadCount++
+					}
+
+				}
+
+			}
+		}
+
+		textureGroups[tg].endQuad = quadCount
+
+	}
+
+}
+
+func calculateShadows(x float64, y float64, z float64, frontTile uint16) bool {
+
+	for s := 1.0; y+s < gridHeight; s++ {
+
+		if int(z-s) >= -gridCentre && int(z-s) < gridCentre {
+
+			if frontTile == 0 &&
+				(grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s-1)][1] > 0 || grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s)][0] > 0) ||
+				frontTile > 0 && s > 1 &&
+					(grid[int(x)+gridCentre][int(z-s)+gridCentre][int(y+s)][0] > 0 || grid[int(x)+gridCentre][int(z-s+1)+gridCentre][int(y+s)][0] > 0) {
+				return true
+			}
+
+		}
+	}
+
+	return false
+
+}
