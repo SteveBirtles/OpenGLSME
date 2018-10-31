@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="416dffd5-2334-4677-8e2c-73827b48b34e" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/inputs.go" afterPath="$PROJECT_DIR$/inputs.go" />
-      <change beforePath="$PROJECT_DIR$/openGL.go" afterPath="$PROJECT_DIR$/openGL.go" />
+      <change beforePath="$PROJECT_DIR$/openGL.go" afterPath="$PROJECT_DIR$/render.go" />
       <change beforePath="$PROJECT_DIR$/shaders.go" afterPath="$PROJECT_DIR$/shaders.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -96,8 +95,8 @@
       <file leaf-file-name="main.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="28" column="21" lean-forward="false" selection-start-line="28" selection-start-column="21" selection-end-line="28" selection-end-column="21" />
+            <state relative-caret-position="227">
+              <caret line="25" column="22" lean-forward="false" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
               <folding>
                 <element signature="e#14#89#0" expanded="true" />
               </folding>
@@ -108,7 +107,7 @@
       <file leaf-file-name="inputs.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/inputs.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="479">
+            <state relative-caret-position="749">
               <caret line="74" column="5" lean-forward="true" selection-start-line="74" selection-start-column="5" selection-end-line="74" selection-end-column="5" />
               <folding>
                 <element signature="e#14#67#0" expanded="true" />
@@ -130,18 +129,18 @@
       <file leaf-file-name="geometry.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/geometry.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1350">
+            <state relative-caret-position="-907">
               <caret line="78" column="14" lean-forward="true" selection-start-line="78" selection-start-column="14" selection-end-line="78" selection-end-column="14" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="openGL.go" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/openGL.go">
+      <file leaf-file-name="render.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/render.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="479">
-              <caret line="70" column="24" lean-forward="true" selection-start-line="70" selection-start-column="24" selection-end-line="70" selection-end-column="24" />
+            <state relative-caret-position="1044">
+              <caret line="70" column="24" lean-forward="false" selection-start-line="70" selection-start-column="24" selection-end-line="70" selection-end-column="24" />
               <folding>
                 <element signature="e#14#154#0" expanded="true" />
               </folding>
@@ -159,11 +158,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="shaders.go" pinned="false" current-in-tab="false">
+      <file leaf-file-name="shaders.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/shaders.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="335">
-              <caret line="77" column="0" lean-forward="true" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+            <state relative-caret-position="407">
+              <caret line="87" column="25" lean-forward="false" selection-start-line="87" selection-start-column="25" selection-end-line="87" selection-end-column="25" />
               <folding>
                 <element signature="e#14#126#0" expanded="true" />
               </folding>
@@ -240,9 +239,9 @@
         <option value="$PROJECT_DIR$/geometry.go" />
         <option value="$PROJECT_DIR$/textures.go" />
         <option value="$PROJECT_DIR$/main.go" />
-        <option value="$PROJECT_DIR$/shaders.go" />
         <option value="$PROJECT_DIR$/inputs.go" />
         <option value="$PROJECT_DIR$/openGL.go" />
+        <option value="$PROJECT_DIR$/shaders.go" />
       </list>
     </option>
   </component>
@@ -396,7 +395,8 @@
     <MESSAGE value="Further refactoring." />
     <MESSAGE value="Added trippy mode!" />
     <MESSAGE value="Nearly ready for Gophers." />
-    <option name="LAST_COMMIT_MESSAGE" value="Nearly ready for Gophers." />
+    <MESSAGE value="Nearly ready for Gophers (2)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Nearly ready for Gophers (2)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -441,7 +441,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/openGL.go">
+    <entry file="file://$PROJECT_DIR$/render.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="24" column="48" lean-forward="true" selection-start-line="24" selection-start-column="48" selection-end-line="24" selection-end-column="48" />
@@ -487,7 +487,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/openGL.go">
+    <entry file="file://$PROJECT_DIR$/render.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="990">
           <caret line="62" column="27" lean-forward="false" selection-start-line="62" selection-start-column="27" selection-end-line="62" selection-end-column="27" />
@@ -571,29 +571,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/geometry.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1350">
-          <caret line="78" column="14" lean-forward="true" selection-start-line="78" selection-start-column="14" selection-end-line="78" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="28" column="21" lean-forward="false" selection-start-line="28" selection-start-column="21" selection-end-line="28" selection-end-column="21" />
-          <folding>
-            <element signature="e#14#89#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/textures.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
           <caret line="20" column="0" lean-forward="true" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/render.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1044">
+          <caret line="70" column="24" lean-forward="false" selection-start-line="70" selection-start-column="24" selection-end-line="70" selection-end-column="24" />
+          <folding>
+            <element signature="e#14#154#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -607,7 +599,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/inputs.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
+        <state relative-caret-position="749">
           <caret line="74" column="5" lean-forward="true" selection-start-line="74" selection-start-column="5" selection-end-line="74" selection-end-column="5" />
           <folding>
             <element signature="e#14#67#0" expanded="true" />
@@ -615,22 +607,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/shaders.go">
+    <entry file="file://$PROJECT_DIR$/geometry.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="335">
-          <caret line="77" column="0" lean-forward="true" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+        <state relative-caret-position="-907">
+          <caret line="78" column="14" lean-forward="true" selection-start-line="78" selection-start-column="14" selection-end-line="78" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="227">
+          <caret line="25" column="22" lean-forward="false" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
           <folding>
-            <element signature="e#14#126#0" expanded="true" />
+            <element signature="e#14#89#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/openGL.go">
+    <entry file="file://$PROJECT_DIR$/shaders.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
-          <caret line="70" column="24" lean-forward="true" selection-start-line="70" selection-start-column="24" selection-end-line="70" selection-end-column="24" />
+        <state relative-caret-position="407">
+          <caret line="87" column="25" lean-forward="false" selection-start-line="87" selection-start-column="25" selection-end-line="87" selection-end-column="25" />
           <folding>
-            <element signature="e#14#154#0" expanded="true" />
+            <element signature="e#14#126#0" expanded="true" />
           </folding>
         </state>
       </provider>
