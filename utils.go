@@ -54,38 +54,38 @@ func initiateOpenGL() {
 
 func newShaderProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
 
-	vertexShader, err := compileShader(vertexShaderSource+"\x00", gl.VERTEX_SHADER)
+	vertexShader, err := compileShader(vertexShaderSource+terminator, gl.VERTEX_SHADER)
 	if err != nil {
 		return 0, err
 	}
 
-	fragmentShader, err := compileShader(fragmentShaderSource+"\x00", gl.FRAGMENT_SHADER)
+	fragmentShader, err := compileShader(fragmentShaderSource+terminator, gl.FRAGMENT_SHADER)
 	if err != nil {
 		return 0, err
 	}
 
-	program = gl.CreateProgram()
+	shaderProgram = gl.CreateProgram()
 
-	gl.AttachShader(program, vertexShader)
-	gl.AttachShader(program, fragmentShader)
-	gl.LinkProgram(program)
+	gl.AttachShader(shaderProgram, vertexShader)
+	gl.AttachShader(shaderProgram, fragmentShader)
+	gl.LinkProgram(shaderProgram)
 
 	var status int32
-	gl.GetProgramiv(program, gl.LINK_STATUS, &status)
+	gl.GetProgramiv(shaderProgram, gl.LINK_STATUS, &status)
 	if status == gl.FALSE {
 		var logLength int32
-		gl.GetProgramiv(program, gl.INFO_LOG_LENGTH, &logLength)
+		gl.GetProgramiv(shaderProgram, gl.INFO_LOG_LENGTH, &logLength)
 
-		log := strings.Repeat("\x00", int(logLength+1))
-		gl.GetProgramInfoLog(program, logLength, nil, gl.Str(log))
+		log := strings.Repeat(terminator, int(logLength+1))
+		gl.GetProgramInfoLog(shaderProgram, logLength, nil, gl.Str(log))
 
-		return 0, fmt.Errorf("failed to link program: %v", log)
+		return 0, fmt.Errorf("failed to link shaderProgram: %v", log)
 	}
 
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
 
-	return program, nil
+	return shaderProgram, nil
 
 }
 
@@ -104,7 +104,7 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 		var logLength int32
 		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
 
-		log := strings.Repeat("\x00", int(logLength+1))
+		log := strings.Repeat(terminator, int(logLength+1))
 		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
 
 		return 0, fmt.Errorf("failed to compile %v: %v", source, log)

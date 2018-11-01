@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-func render() {
+func renderWorld() {
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -15,7 +15,7 @@ func render() {
 	up := mgl32.Vec3{0, 1, 0}
 	camera := mgl32.LookAtV(position, focus, up)
 
-	cameraUniform := gl.GetUniformLocation(program, gl.Str("camera\x00"))
+	cameraUniform := gl.GetUniformLocation(shaderProgram, gl.Str("camera\x00"))
 	gl.UniformMatrix4fv(cameraUniform, 1, false, &camera[0])
 
 	gl.ActiveTexture(gl.TEXTURE0)

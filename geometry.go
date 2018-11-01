@@ -5,8 +5,7 @@ import (
 	"math"
 )
 
-var ( //  X, Y, Z, U, V
-
+var (
 	vertices []float32
 
 	cubeBottom = []float32{

@@ -14,8 +14,10 @@ var (
 	frames            = 0
 	second            = time.Tick(time.Second)
 	frameLength       float64
-	windowTitlePrefix = "Supermoon Engine OpenGL Map Preview"
+	windowTitlePrefix = "OpenGL SME Map Preview"
 	window            *glfw.Window
+	startTime         = time.Now()
+	vertices2         []float32
 )
 
 func main() {
@@ -27,12 +29,15 @@ func main() {
 	prepareTextures()
 	prepareShaders() // <--- to be completed
 
+	vertices2 = make([]float32, len(vertices))
+	copy(vertices2, vertices)
+
 	for !window.ShouldClose() {
 
 		frameStart := time.Now()
 
 		processInputs() // <--- to be completed
-		render()        // <--- to be completed
+		renderWorld()   // <--- to be completed
 
 		glfw.PollEvents()
 		frames++

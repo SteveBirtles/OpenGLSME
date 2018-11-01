@@ -6,11 +6,9 @@ import (
 	_ "image/png"
 )
 
-var (
-	program      uint32
-	model        mgl32.Mat4
-	modelUniform int32
-)
+const terminator = "\x00"
+
+var shaderProgram uint32
 
 const vertexShader = `#version 330
 
@@ -18,34 +16,38 @@ uniform mat4 projection;
 uniform mat4 camera;
 uniform mat4 model;
 
-in vec3 vert;
-in vec2 vertTexCoord;
-in vec3 inputColor;
+in vec3 vertexIn;
+in vec2 texCoordIn;
+in vec3 colourIn;
 
-out vec2 fragTexCoord;
-out vec3 fragColor;
+out vec2 texCoordForFrag;
+out vec3 colourForFrag;
 
 void main() {
-    fragTexCoord = vertTexCoord;
-	fragColor = inputColor;
-    gl_Position = projection * camera * model * vec4(vert, 1);
+
+    texCoordForFrag = texCoordIn;
+    colourForFrag = colourIn;
+
+    gl_Position = projection * camera * model * vec4(vertexIn, 1);
+
 }`
 
 const fragmentShader = `#version 330
 
 uniform sampler2D tex;
 
-in vec2 fragTexCoord;
-in vec3 fragColor;
+in vec2 texCoordForFrag;
+in vec3 colourForFrag;
 
-out vec4 outputColor;
+out vec4 colourOut;
 
 void main() {
-    outputColor = texture(tex, fragTexCoord);
 
-	outputColor.x *= fragColor.x;
-	outputColor.y *= fragColor.y;
-	outputColor.z *= fragColor.z;
+    colourOut = texture(tex, texCoordForFrag);
+
+    colourOut.x *= colourForFrag.x;
+    colourOut.y *= colourForFrag.y;
+    colourOut.z *= colourForFrag.z;
 
 }`
 
@@ -53,35 +55,35 @@ func prepareShaders() {
 
 	var err error
 
-	program, err = newShaderProgram(vertexShader, fragmentShader)
+	shaderProgram, err = newShaderProgram(vertexShader, fragmentShader)
 	if err != nil {
 		panic(err)
 	}
-	gl.UseProgram(program)
+	gl.UseProgram(shaderProgram)
 
 	projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(windowWidth)/windowHeight, 0.1, 5000.0)
-	projectionUniform := gl.GetUniformLocation(program, gl.Str("projection"+"\x00"))
+	projectionUniform := gl.GetUniformLocation(shaderProgram, gl.Str("projection"+terminator))
 	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
-	model = mgl32.Ident4()
-	modelUniform = gl.GetUniformLocation(program, gl.Str("model"+"\x00"))
+	model := mgl32.Ident4()
+	modelUniform := gl.GetUniformLocation(shaderProgram, gl.Str("model"+terminator))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	textureUniform := gl.GetUniformLocation(program, gl.Str("tex"+"\x00"))
-	gl.Uniform1i(textureUniform, 0)
+	tex := gl.GetUniformLocation(shaderProgram, gl.Str("tex"+terminator))
+	gl.Uniform1i(tex, 0)
 
-	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert"+"\x00")))
-	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
+	vertexIn := uint32(gl.GetAttribLocation(shaderProgram, gl.Str("vertexIn"+terminator)))
+	gl.EnableVertexAttribArray(vertexIn)
+	gl.VertexAttribPointer(vertexIn, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(0))
 
-	texCoordAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord"+"\x00")))
-	gl.EnableVertexAttribArray(texCoordAttrib)
-	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
+	texCoordIn := uint32(gl.GetAttribLocation(shaderProgram, gl.Str("texCoordIn"+terminator)))
+	gl.EnableVertexAttribArray(texCoordIn)
+	gl.VertexAttribPointer(texCoordIn, 2, gl.FLOAT, false, 8*4, gl.PtrOffset(3*4))
 
-	colorAttrib := uint32(gl.GetAttribLocation(program, gl.Str("inputColor"+"\x00")))
-	gl.EnableVertexAttribArray(colorAttrib)
-	gl.VertexAttribPointer(colorAttrib, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
+	colourIn := uint32(gl.GetAttribLocation(shaderProgram, gl.Str("colourIn"+terminator)))
+	gl.EnableVertexAttribArray(colourIn)
+	gl.VertexAttribPointer(colourIn, 3, gl.FLOAT, false, 8*4, gl.PtrOffset(5*4))
 
-	gl.BindFragDataLocation(program, 0, gl.Str("outputColor"+"\x00"))
+	gl.BindFragDataLocation(shaderProgram, 0, gl.Str("colourOut"+terminator))
 
 }
