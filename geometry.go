@@ -125,22 +125,22 @@ func prepareVertices() {
 
 				if x == -gridCentre || x > -gridCentre && grid[x+gridCentre-1][z+gridCentre][y][1] == 0 {
 					for i, v := range cubeLeft {
-						processVertex(v, i, x, y, z, false, baseTexture, []float32{0.5 * ambient[0], 0.5 * ambient[1], 0.5 * ambient[2]})
+						processVertex(v, i, x, y, z, false, sideTexture, []float32{0.5 * ambient[0], 0.5 * ambient[1], 0.5 * ambient[2]})
 					}
 				}
 				if x == gridCentre-1 || x < gridCentre-1 && grid[x+gridCentre+1][z+gridCentre][y][1] == 0 {
 					for i, v := range cubeRight {
-						processVertex(v, i, x, y, z, false, baseTexture, []float32{0.5 * ambient[0], 0.5 * ambient[1], 0.5 * ambient[2]})
+						processVertex(v, i, x, y, z, false, sideTexture, []float32{0.5 * ambient[0], 0.5 * ambient[1], 0.5 * ambient[2]})
 					}
 				}
 				if z == -gridCentre || z > -gridCentre && grid[x+gridCentre][z+gridCentre-1][y][1] == 0 {
 					for i, v := range cubeLightSide {
-						processVertex(v, i, x, y, z, inShadow, baseTexture, []float32{0.75 * ambient[0], 0.75 * ambient[1], 0.75 * ambient[2]})
+						processVertex(v, i, x, y, z, inShadow, sideTexture, []float32{0.75 * ambient[0], 0.75 * ambient[1], 0.75 * ambient[2]})
 					}
 				}
 				if z == gridCentre-1 || z < gridCentre-1 && grid[x+gridCentre][z+gridCentre+1][y][1] == 0 {
 					for i, v := range cubeDarkSide {
-						processVertex(v, i, x, y, z, false, baseTexture, []float32{0.333 * ambient[0], 0.333 * ambient[1], 0.333 * ambient[2]})
+						processVertex(v, i, x, y, z, false, sideTexture, []float32{0.333 * ambient[0], 0.333 * ambient[1], 0.333 * ambient[2]})
 					}
 				}
 
