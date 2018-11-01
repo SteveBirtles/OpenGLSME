@@ -16,6 +16,14 @@ var (
 		1.0, -1.0, -1.0, 1.0, 0.0,
 		-1.0, -1.0, 1.0, 0.0, 1.0,
 	}
+	cubeFlippedBottom = []float32{
+		1.0, -1.0, -1.0, 1.0, 0.0,
+		-1.0, -1.0, 1.0, 0.0, 1.0,
+		-1.0, -1.0, -1.0, 0.0, 0.0,
+		1.0, -1.0, 1.0, 1.0, 1.0,
+		-1.0, -1.0, 1.0, 0.0, 1.0,
+		1.0, -1.0, -1.0, 1.0, 0.0,
+	}
 	cubeTop = []float32{
 		-1.0, 1.0, -1.0, 0.0, 0.0,
 		-1.0, 1.0, 1.0, 0.0, 1.0,
@@ -111,10 +119,20 @@ func prepareVertices() {
 							processVertex(v, i, x, y, z, inShadow, baseTexture, []float32{1 * ambient[0], 1 * ambient[1], 1 * ambient[2]})
 						}
 					}
+					if y == 0 || y > 0 && grid[x+gridCentre][z+gridCentre][y-1][0] == 0 {
+						for i, v := range cubeFlippedBottom {
+							processVertex(v, i, x, y, z, false, baseTexture, []float32{0.333 * ambient[0], 0.333 * ambient[1], 0.333 * ambient[2]})
+						}
+					}
 				} else {
 					if y == gridHeight-1 || y < gridHeight-1 && grid[x+gridCentre][z+gridCentre][y+1][0] == 0 {
 						for i, v := range cubeTop {
 							processVertex(v, i, x, y, z, inShadow, baseTexture, []float32{1 * ambient[0], 1 * ambient[1], 1 * ambient[2]})
+						}
+					}
+					if y == 0 || y > 0 && grid[x+gridCentre][z+gridCentre][y-1][0] == 0 {
+						for i, v := range cubeFlippedBottom {
+							processVertex(v, i, x, y, z, false, baseTexture, []float32{0.333 * ambient[0], 0.333 * ambient[1], 0.333 * ambient[2]})
 						}
 					}
 				}

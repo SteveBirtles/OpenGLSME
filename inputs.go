@@ -1,10 +1,8 @@
 package main
 
 import (
-	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"math"
-	"time"
 )
 
 var (
@@ -54,24 +52,6 @@ func processInputs() {
 		myX -= 25 * frameLength * math.Cos(bearing) * math.Sin(pitch)
 		myY += 25 * frameLength * math.Cos(pitch)
 		myZ -= 25 * frameLength * math.Sin(bearing) * math.Sin(pitch)
-	}
-
-	if window.GetKey(glfw.KeyT) == glfw.Press {
-		t := time.Since(startTime).Seconds()
-		copy(vertices, vertices2)
-		for i := 0; i < len(vertices); i += 8 {
-			p := float64(vertices[i]) * 10
-			vertices[i] += float32(math.Cos(t) * math.Cos(float64(vertices[i+2]*10)))
-			vertices[i+1] += float32(math.Sin(t) * math.Sin(p))
-			vertices[i+5] += float32(math.Cos(t/4) * math.Cos(float64(vertices[i])+t) / 3)
-			vertices[i+6] += float32(math.Sin(t/4) * math.Cos(float64(vertices[i+1])+t) / 3)
-			vertices[i+7] += float32(math.Cos(t/4) * math.Sin(float64(vertices[i+2])+t) / 3)
-		}
-		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
-	}
-	if window.GetKey(glfw.KeyT) == glfw.Release {
-		copy(vertices, vertices2)
-		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 	}
 
 	mouseX, mouseY := window.GetCursorPos()

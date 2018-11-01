@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-const windowWidth = 1280
-const windowHeight = 720
+const windowWidth = 1920
+const windowHeight = 1080
 
 var (
 	frames            = 0
@@ -16,8 +16,6 @@ var (
 	frameLength       float64
 	windowTitlePrefix = "OpenGL SME Map Preview"
 	window            *glfw.Window
-	startTime         = time.Now()
-	vertices2         []float32
 )
 
 func main() {
@@ -28,9 +26,6 @@ func main() {
 	prepareVertices()
 	prepareTextures()
 	prepareShaders()
-
-	vertices2 = make([]float32, len(vertices))
-	copy(vertices2, vertices)
 
 	for !window.ShouldClose() {
 
