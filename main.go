@@ -27,7 +27,7 @@ func main() {
 	initiateOpenGL()
 	prepareVertices()
 	prepareTextures()
-	prepareShaders() // <--- to be completed
+	prepareShaders()
 
 	vertices2 = make([]float32, len(vertices))
 	copy(vertices2, vertices)
@@ -36,8 +36,8 @@ func main() {
 
 		frameStart := time.Now()
 
-		processInputs() // <--- to be completed
-		renderWorld()   // <--- to be completed
+		processInputs()
+		renderWorld()
 
 		glfw.PollEvents()
 		frames++
