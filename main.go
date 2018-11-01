@@ -23,10 +23,9 @@ func main() {
 	loadMap()
 
 	initiateOpenGL()
-	initiateShaders() // <--- to be completed
+	prepareVertices()
 	prepareTextures()
-	prepareVerticies()
-	finaliseShaders()
+	prepareShaders() // <--- to be completed
 
 	for !window.ShouldClose() {
 

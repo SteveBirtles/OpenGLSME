@@ -84,7 +84,7 @@ func processVertex(v float32, i, x, y, z int, s bool, b int, rgb []float32) {
 
 }
 
-func prepareVerticies() {
+func prepareVertices() {
 
 	vertices = make([]float32, 0)
 
@@ -104,7 +104,7 @@ func prepareVerticies() {
 					continue
 				}
 
-				inShadow := calculateShadows(float64(x), float64(y), float64(z), uint16(sideTexture+1))
+				inShadow := calculateMapShadow(float64(x), float64(y), float64(z), uint16(sideTexture+1))
 
 				if sideTexture == -1 {
 					if y == 0 || y > 0 && grid[x+gridCentre][z+gridCentre][y-1][0] == 0 {

@@ -26,7 +26,7 @@ func loadMap() {
 
 }
 
-func calculateShadows(x float64, y float64, z float64, frontTile uint16) bool {
+func calculateMapShadow(x float64, y float64, z float64, frontTile uint16) bool {
 
 	for s := 1.0; y+s < gridHeight; s++ {
 
