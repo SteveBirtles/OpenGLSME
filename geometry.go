@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/go-gl/gl/v4.1-core/gl"
 	"math"
+
+	"github.com/go-gl/gl/v4.6-core/gl"
 )
 
 var (
@@ -77,9 +78,9 @@ func processVertex(v float32, i, x, y, z int, s bool, b int, rgb []float32) {
 	} else if i%5 == 2 {
 		v += float32(2 * z)
 	} else if i%5 == 3 {
-		v = (v + float32(b%16)) / 16
+		v = (v + float32(b%8)) / 8
 	} else if i%5 == 4 {
-		v = float32(int(v+float32(b/16))) / 10
+		v = float32(int(v+float32(b/8))) / 5
 	}
 	vertices = append(vertices, v)
 	if i%5 == 4 {

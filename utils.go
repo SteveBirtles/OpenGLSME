@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/glfw/v3.2/glfw"
 	"log"
 	"runtime"
 	"strings"
+
+	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 func init() {
@@ -27,6 +28,7 @@ func initiateOpenGL() {
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.Samples, 4)
 
 	window, err = glfw.CreateWindow(windowWidth, windowHeight, windowTitlePrefix, nil, nil)
 	if err != nil {
@@ -45,6 +47,7 @@ func initiateOpenGL() {
 	gl.DepthFunc(gl.LESS)
 	gl.Enable(gl.CULL_FACE)
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
+	gl.Enable(gl.MULTISAMPLE)
 
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)

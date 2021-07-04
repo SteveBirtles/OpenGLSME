@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/mathgl/mgl32"
 	_ "image/png"
+
+	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 const terminator = "\x00"

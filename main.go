@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-gl/glfw/v3.2/glfw"
 	_ "image/png"
 	"time"
+
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 const windowWidth = 1280
